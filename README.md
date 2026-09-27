@@ -1,5 +1,4 @@
-
-# Healthcare Data Privacy Analyzer
+# Healthcare Data Privacy Analyzer 
 
 ### Privacy-Preserving Release of Healthcare Microdata
 
