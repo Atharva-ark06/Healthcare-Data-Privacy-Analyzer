@@ -20,7 +20,7 @@ The dashboard provides:
 - Privacy improvement
 - Before/after dataset comparison
 - Protected dataset download
-
+- Light & Dark Theme 
 ---
 
 ## Key Features
@@ -78,7 +78,7 @@ In the suppression example, the exact PIN codes are masked while preserving the 
 
 The application allows users to download the dataset after applying the selected privacy technique.
 
-![Download Protected Dataset](YOUR_DOWNLOAD_IMAGE_LINK_HERE)
+![Download Protected Dataset](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508536/Screenshot_2026-09-27_165844.png)
 
 Each selected technique generates its corresponding protected CSV dataset.
 
