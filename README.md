@@ -1,5 +1,4 @@
 
-```markdown
 # Healthcare Data Privacy Analyzer
 
 ### Privacy-Preserving Release of Healthcare Microdata
