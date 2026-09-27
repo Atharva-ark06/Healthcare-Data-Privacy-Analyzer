@@ -1,4 +1,3 @@
-You're right. You want **ONE single code block = ONE copy button**, with the **entire README inside it**. No nested code blocks that create extra copy buttons.
 
 ```markdown
 # Healthcare Data Privacy Analyzer
