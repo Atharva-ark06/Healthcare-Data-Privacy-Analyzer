@@ -217,8 +217,9 @@ This demonstrates the trade-off between **privacy protection and data utility**.
 ### 1. Clone the Repository
 
     git clone https://github.com/Atharva-ark06/Healthcare-Data-Privacy-Analyzer.git
+   ```
     cd Healthcare-Data-Privacy-Analyzer
-
+```
 ### 2. Create Virtual Environment
 
     python -m venv venv
