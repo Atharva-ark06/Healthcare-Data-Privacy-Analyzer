@@ -118,8 +118,8 @@ Each selected technique generates its corresponding protected CSV dataset.
     │                                         │
     │    classification.py                    │
     │    risk_analysis.py                     │
-    │ masking.py                              │
-    │ utility_analysis.py                     │
+    │    masking.py                           │
+    │    utility_analysis.py                  │
     └──────────────────┬──────────────────────┘
                        ↓
     ┌─────────────────────────────────────────┐
