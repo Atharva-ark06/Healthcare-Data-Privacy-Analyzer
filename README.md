@@ -107,11 +107,12 @@ Each selected technique generates its corresponding protected CSV dataset.
 
 ## System Architecture
 
-    ┌──────────────────────┐
-    │     CSV Dataset      │
-    │ healthcare_dataset   │
-    └──────────┬───────────┘
-               ↓
+         ┌──────────────────────┐
+         │     CSV Dataset      │
+         │ healthcare_dataset   │
+         └──────────┬───────────┘
+                    │
+                    ↓      
     ┌─────────────────────────────────────────┐
     │          Python Processing Layer        │
     │                                         │
@@ -122,8 +123,8 @@ Each selected technique generates its corresponding protected CSV dataset.
     └──────────────────┬──────────────────────┘
                        ↓
     ┌─────────────────────────────────────────┐
-    │          Streamlit Application           │
-    │                  app.py                  │
+    │          Streamlit Application          │
+    │                  app.py                 │
     └──────────────────┬──────────────────────┘
                        ↕
     ┌─────────────────────────────────────────┐
