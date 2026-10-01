@@ -129,8 +129,8 @@ Each selected technique generates its corresponding protected CSV dataset.
                        ↕
     ┌─────────────────────────────────────────┐
     │             Web Dashboard               │
-    │  Analysis • Masking • Comparison        │
-    │  Information Loss • Download            │
+    │    Analysis • Masking • Comparison      │
+    │    Information Loss • Download          │
     └─────────────────────────────────────────┘
 
 ---
