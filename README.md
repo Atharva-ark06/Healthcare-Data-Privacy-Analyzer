@@ -116,8 +116,8 @@ Each selected technique generates its corresponding protected CSV dataset.
     ┌─────────────────────────────────────────┐
     │          Python Processing Layer        │
     │                                         │
-    │ classification.py                       │
-    │ risk_analysis.py                        │
+    │    classification.py                    │
+    │    risk_analysis.py                     │
     │ masking.py                              │
     │ utility_analysis.py                     │
     └──────────────────┬──────────────────────┘
