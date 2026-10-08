@@ -304,11 +304,12 @@ The application will open in your browser.
 **Atharva Kulkarni**
 
 B.Tech Computer Science & Engineering  
-G M University, Davangere
+
 
 **GitHub:**  
+```
 https://github.com/Atharva-ark06
-
+```
 ---
 
 ## License
