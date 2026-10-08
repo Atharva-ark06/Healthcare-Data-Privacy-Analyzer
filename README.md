@@ -1,7 +1,7 @@
 # Healthcare Data Privacy Analyzer 
 
 ### Privacy-Preserving Release of Healthcare Microdata
-
+ 
 A Python-based privacy analysis tool designed to identify **re-identification risks** in healthcare datasets and apply privacy-preserving masking techniques while maintaining useful data for analysis.
 
 
