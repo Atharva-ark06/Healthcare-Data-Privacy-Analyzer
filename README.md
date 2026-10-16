@@ -6,7 +6,7 @@ A Python-based privacy analysis tool designed to identify **re-identification ri
 
 
 ---
-
+ 
 ## Dashboard
 
 ![Healthcare Data Privacy Analyzer Dashboard](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508462/Screenshot_2026-09-27_165228.png)
