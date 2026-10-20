@@ -230,6 +230,17 @@ Healthcare-Data-Privacy-Analyzer/
     └── privacy-audit-report.md
 ```
 
+## Responsible data handling
+
+This project is a learning tool, not a certified de-identification system.
+
+- Use only synthetic or appropriately authorized data during development.
+- Keep source datasets out of commits unless the repository is explicitly approved to store them.
+- Do not include patient identifiers or sensitive rows in issue reports, screenshots, or pull-request examples.
+- Review exported CSV and HTML files before sharing them; an aggregate report can still reveal information if custom fields or future changes add row-level details.
+- Consider the possibility of linkage with external datasets, small-group disclosure, and sensitive-attribute inference.
+- Document assumptions and test with edge cases such as missing values, empty inputs, and unusual group sizes.
+
 ## Limitations
 
 - The included dataset is small and fictional; results may not generalize to real datasets.
