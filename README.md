@@ -104,6 +104,18 @@ The included sample is a small fictional dataset with the following attributes:
 
 No real patient information should be added to a public repository. Before using any real or sensitive data, review authorization, consent, access controls, and applicable institutional requirements.
 
+## Interpreting the metrics
+
+Treat the dashboard outputs as screening signals rather than release approval:
+
+- A group size below the selected *k* threshold indicates a k-anonymity failure for that group.
+- A group with fewer than *l* distinct sensitive values fails the configured distinct-value l-diversity check.
+- A total-variation distance above *t* fails the configured t-closeness check.
+- A lower uniqueness-risk proxy after masking does not establish that re-identification is impossible.
+- A low information-loss estimate does not prove that the data retains every property needed for a particular research question.
+
+The dashboard's configured thresholds should be justified for the intended use case. Avoid publishing data solely because the displayed checks pass.
+
 ## Risk and information-loss calculations
 
 The risk module uses a simplified uniqueness-based proxy:
