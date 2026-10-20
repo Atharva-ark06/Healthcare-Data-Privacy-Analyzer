@@ -10,6 +10,7 @@ from modules.masking import (
     apply_all_masking
 )
 from modules.utility_analysis import calculate_information_loss
+from modules.privacy_models import analyze_privacy_models
 
 
 # =========================================================
@@ -75,6 +76,16 @@ st.sidebar.caption(
     "Suppression hides selected data, "
     "generalization replaces exact values with ranges, "
     "and data swapping exchanges values between records."
+)
+
+st.sidebar.subheader("Privacy Model Thresholds")
+k_threshold = st.sidebar.number_input("Minimum group size (k)", min_value=1, max_value=100, value=2, step=1)
+l_threshold = st.sidebar.number_input("Minimum sensitive diversity (l)", min_value=1, max_value=100, value=2, step=1)
+t_threshold = st.sidebar.slider("Maximum distribution distance (t)", min_value=0.0, max_value=1.0, value=0.2, step=0.05)
+sensitive_options = [column for column in df.columns if column in ["Disease", "Treatment"]]
+sensitive_attribute = st.sidebar.selectbox(
+    "Sensitive attribute for formal checks",
+    sensitive_options if sensitive_options else list(df.columns)
 )
 
 
@@ -383,10 +394,77 @@ else:
 
 
 # =========================================================
+# FORMAL PRIVACY MODEL CHECKS
+# =========================================================
+
+st.header("7. Formal Privacy Model Checks")
+st.write(
+    "Evaluate exact quasi-identifier groups against k-anonymity, "
+    "distinct-value l-diversity, and t-closeness. These are diagnostic "
+    "checks, not a guarantee that a dataset is safe to publish."
+)
+st.caption(
+    f"Using {sensitive_attribute} as the sensitive attribute and "
+    f"{', '.join(['Age', 'Gender', 'PIN Code', 'Department'])} as "
+    "quasi-identifiers. Checks use the currently selected dataset after masking."
+)
+
+try:
+    model_result = analyze_privacy_models(
+        masked_df,
+        sensitive_attribute=sensitive_attribute,
+        k=int(k_threshold),
+        l=int(l_threshold),
+        t=float(t_threshold),
+    )
+    model_col1, model_col2, model_col3 = st.columns(3)
+    with model_col1:
+        st.metric(
+            "K-anonymity",
+            "PASS" if model_result["k"]["passed"] else "FAIL",
+            f"Minimum group size: {model_result['k']['observed_minimum']} (k={k_threshold})",
+        )
+    with model_col2:
+        st.metric(
+            "L-diversity",
+            "PASS" if model_result["l"]["passed"] else "FAIL",
+            f"Minimum distinct values: {model_result['l']['observed_minimum']} (l={l_threshold})",
+        )
+    with model_col3:
+        st.metric(
+            "T-closeness",
+            "PASS" if model_result["t"]["passed"] else "FAIL",
+            f"Maximum distance: {model_result['t']['observed_maximum']:.4f} (t={t_threshold:.2f})",
+        )
+
+    st.subheader("Per-group diagnostics")
+    st.dataframe(
+        model_result["groups"],
+        use_container_width=True,
+        hide_index=True,
+    )
+    failed_groups = model_result["groups"][
+        ~(
+            model_result["groups"]["Passes K-Anonymity"]
+            & model_result["groups"]["Passes L-Diversity"]
+            & model_result["groups"]["Passes T-Closeness"]
+        )
+    ]
+    st.caption(
+        f"{len(failed_groups)} of {model_result['group_count']} groups fail "
+        "at least one selected threshold. T-closeness uses total-variation "
+        "distance between each group's sensitive-value distribution and the "
+        "overall distribution."
+    )
+except (TypeError, ValueError) as exc:
+    st.error(f"Privacy model analysis could not run: {exc}")
+
+
+# =========================================================
 # ORIGINAL VS MASKED
 # =========================================================
 
-st.header("7. Original vs Masked Dataset")
+st.header("8. Original vs Masked Dataset")
 
 # Summarize changes across every record, not just the first row.
 comparison_rows = []
@@ -424,7 +502,7 @@ st.dataframe(
 # DOWNLOAD PROTECTED DATASET
 # =========================================================
 
-st.header("8. Download Protected Dataset")
+st.header("9. Download Protected Dataset")
 
 # Create a technique-specific filename
 filename_map = {
