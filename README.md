@@ -13,7 +13,6 @@ A Python and Streamlit project for exploring re-identification risk, applying ma
 - [How it works](#how-it-works)
 - [Privacy techniques](#privacy-techniques)
 - [Privacy model checks](#privacy-model-checks)
-- [Audit report export](#audit-report-export)
 - [Dataset and assumptions](#dataset-and-assumptions)
 - [Technology stack](#technology-stack)
 - [Installation](#installation)
@@ -31,7 +30,7 @@ A Python and Streamlit project for exploring re-identification risk, applying ma
 - **Masking:** try suppression, age generalization, data swapping, or combined non-perturbative masking.
 - **Utility analysis:** estimate information loss and compare original and masked values.
 - **Formal model diagnostics:** evaluate k-anonymity, distinct-value l-diversity, and t-closeness thresholds.
-- **Exports:** download the selected masked dataset as CSV and export aggregate audit findings as HTML.
+- **Export:** download the selected masked dataset as CSV.
 - **Interactive dashboard:** explore results in a Streamlit interface.
 
 ## Dashboard screenshots
@@ -79,18 +78,6 @@ The dashboard includes configurable diagnostic checks for:
 The default quasi-identifiers are Age, Gender, PIN Code, and Department. Disease or Treatment can be selected as the sensitive attribute, depending on the columns available.
 
 These checks are educational diagnostics, not formal proof of anonymity or a guarantee against re-identification. Results depend on the selected attributes, thresholds, data, and threat model.
-
-## Audit report export
-
-The dashboard can generate a self-contained HTML privacy audit report containing:
-
-- selected masking technique and dataset dimensions;
-- information-loss estimate and original/masked risk proxy;
-- pass/fail results for the configured privacy models;
-- aggregate counts of groups failing each check;
-- recommendations for further review and a limitations notice.
-
-The report is designed to omit patient-level records and exact quasi-identifier values. Download the HTML report and open it in a browser. To make a PDF copy, use the browser's **Print → Save as PDF** option.
 
 ## Dataset and assumptions
 
@@ -201,7 +188,6 @@ The project separates the dashboard from the analysis logic:
 | `modules/masking.py` | Suppression, generalization, swapping, and combined masking |
 | `modules/utility_analysis.py` | Information-loss calculation |
 | `modules/privacy_models.py` | k-anonymity, l-diversity, and t-closeness diagnostics |
-| `modules/audit_report.py` | Aggregate report summary and HTML rendering |
 | `tests/` | Regression and input-validation tests |
 | `docs/` | Notes about privacy model checks and audit reports |
 
@@ -224,7 +210,6 @@ Healthcare-Data-Privacy-Analyzer/
 ├── tests/
 │   ├── test_privacy_modules.py
 │   ├── test_privacy_models.py
-│   └── test_audit_report.py
 └── docs/
     ├── privacy-model-checks.md
     └── privacy-audit-report.md
