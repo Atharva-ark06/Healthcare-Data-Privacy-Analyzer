@@ -134,17 +134,19 @@ st.header("3. Re-identification Risk Analysis")
 
 risk_result = calculate_risk(original_df)
 
-display_risk = risk_result[
-    [
-        "Patient ID",
-        "Age",
-        "Gender",
-        "PIN Code",
-        "Department",
-        "Group Size",
-        "Re-identification Risk"
-    ]
-].copy()
+st.caption(
+    "This is a uniqueness-based educational risk proxy (100% / matching "
+    "quasi-identifier group size), not a formal privacy guarantee. "
+    "Direct identifiers are intentionally excluded from this risk table."
+)
+
+risk_columns = [
+    column for column in [
+        "Age", "Gender", "PIN Code", "Department",
+        "Group Size", "Re-identification Risk"
+    ] if column in risk_result.columns
+]
+display_risk = risk_result[risk_columns].copy()
 
 display_risk["Re-identification Risk"] = (
     display_risk["Re-identification Risk"]
@@ -386,34 +388,26 @@ else:
 
 st.header("7. Original vs Masked Dataset")
 
+# Summarize changes across every record, not just the first row.
 comparison_rows = []
 
 for column in original_df.columns:
-
-    original_value = str(
-        original_df[column].iloc[0]
+    original_values = original_df[column]
+    masked_values = masked_df[column]
+    equal_values = original_values.eq(masked_values) | (
+        original_values.isna() & masked_values.isna()
     )
+    changed_records = int((~equal_values).sum())
 
-    masked_value = str(
-        masked_df[column].iloc[0]
-    )
+    comparison_rows.append({
+        "Attribute": column,
+        "Records Compared": len(original_df),
+        "Changed Records": changed_records,
+        "Unchanged Records": len(original_df) - changed_records,
+        "Changed": "Yes" if changed_records else "No"
+    })
 
-    comparison_rows.append(
-        {
-            "Attribute": column,
-            "Original": original_value,
-            "Masked": masked_value,
-            "Changed": (
-                "Yes"
-                if original_value != masked_value
-                else "No"
-            )
-        }
-    )
-
-comparison_df = pd.DataFrame(
-    comparison_rows
-)
+comparison_df = pd.DataFrame(comparison_rows)
 
 st.dataframe(
     comparison_df,
