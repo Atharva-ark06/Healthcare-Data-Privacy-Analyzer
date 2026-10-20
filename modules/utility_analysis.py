@@ -1,41 +1,36 @@
+import math
+
+import pandas as pd
+
+
 def calculate_information_loss(original_df, masked_df):
+    """Return the percentage of cells whose values changed after masking.
+
+    Both frames must have the same shape and column order so the metric has
+    an unambiguous denominator. Missing values are compared as missing values.
     """
-    Calculates the percentage of cells that changed
-    between the original and masked datasets.
-    """
+    if not isinstance(original_df, pd.DataFrame) or not isinstance(masked_df, pd.DataFrame):
+        raise TypeError("original_df and masked_df must be pandas DataFrames")
+    if original_df.shape != masked_df.shape:
+        raise ValueError("original_df and masked_df must have the same shape")
+    if not original_df.columns.equals(masked_df.columns):
+        raise ValueError("original_df and masked_df must have identical columns in the same order")
 
-    total_cells = original_df.shape[0] * original_df.shape[1]
+    total_cells = original_df.size
+    if total_cells == 0:
+        return 0.0
 
-    changed_cells = 0
-
-    for column in original_df.columns:
-        if column in masked_df.columns:
-            for original, masked in zip(
-                original_df[column],
-                masked_df[column]
-            ):
-                if str(original) != str(masked):
-                    changed_cells += 1
-
-    information_loss = (
-        changed_cells / total_cells
-    ) * 100
-
-    return round(information_loss, 2)
+    equal = original_df.eq(masked_df) | (original_df.isna() & masked_df.isna())
+    changed_cells = int((~equal).to_numpy().sum())
+    return round((changed_cells / total_cells) * 100, 2)
 
 
 def privacy_improvement(original_risk, masked_risk):
-    """
-    Calculates the percentage reduction in
-    average re-identification risk.
-    """
-
+    """Calculate percentage reduction in risk; return 0 for zero baseline."""
+    if not isinstance(original_risk, (int, float)) or not isinstance(masked_risk, (int, float)):
+        raise TypeError("Risk values must be numeric")
+    if not math.isfinite(original_risk) or not math.isfinite(masked_risk):
+        raise ValueError("Risk values must be finite")
     if original_risk == 0:
-        return 0
-
-    improvement = (
-        (original_risk - masked_risk)
-        / original_risk
-    ) * 100
-
-    return round(improvement, 2)
+        return 0.0
+    return round(((original_risk - masked_risk) / original_risk) * 100, 2)
