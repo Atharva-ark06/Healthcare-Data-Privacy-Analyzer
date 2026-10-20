@@ -10,6 +10,7 @@ from modules.masking import (
     apply_all_masking
 )
 from modules.utility_analysis import calculate_information_loss
+from modules.privacy_models import analyze_privacy_models
 
 
 # =========================================================
@@ -75,6 +76,16 @@ st.sidebar.caption(
     "Suppression hides selected data, "
     "generalization replaces exact values with ranges, "
     "and data swapping exchanges values between records."
+)
+
+st.sidebar.subheader("Privacy Model Thresholds")
+k_threshold = st.sidebar.number_input("Minimum group size (k)", min_value=1, max_value=100, value=2, step=1)
+l_threshold = st.sidebar.number_input("Minimum sensitive diversity (l)", min_value=1, max_value=100, value=2, step=1)
+t_threshold = st.sidebar.slider("Maximum distribution distance (t)", min_value=0.0, max_value=1.0, value=0.2, step=0.05)
+sensitive_options = [column for column in df.columns if column in ["Disease", "Treatment"]]
+sensitive_attribute = st.sidebar.selectbox(
+    "Sensitive attribute for formal checks",
+    sensitive_options if sensitive_options else list(df.columns)
 )
 
 
@@ -383,10 +394,77 @@ else:
 
 
 # =========================================================
+# FORMAL PRIVACY MODEL CHECKS
+# =========================================================
+
+st.header("7. Formal Privacy Model Checks")
+st.write(
+    "Evaluate exact quasi-identifier groups against k-anonymity, "
+    "distinct-value l-diversity, and t-closeness. These are diagnostic "
+    "checks, not a guarantee that a dataset is safe to publish."
+)
+st.caption(
+    f"Using {sensitive_attribute} as the sensitive attribute and "
+    f"{', '.join(['Age', 'Gender', 'PIN Code', 'Department'])} as "
+    "quasi-identifiers. Checks use the currently selected dataset after masking."
+)
+
+try:
+    model_result = analyze_privacy_models(
+        masked_df,
+        sensitive_attribute=sensitive_attribute,
+        k=int(k_threshold),
+        l=int(l_threshold),
+        t=float(t_threshold),
+    )
+    model_col1, model_col2, model_col3 = st.columns(3)
+    with model_col1:
+        st.metric(
+            "K-anonymity",
+            "PASS" if model_result["k"]["passed"] else "FAIL",
+            f"Minimum group size: {model_result['k']['observed_minimum']} (k={k_threshold})",
+        )
+    with model_col2:
+        st.metric(
+            "L-diversity",
+            "PASS" if model_result["l"]["passed"] else "FAIL",
+            f"Minimum distinct values: {model_result['l']['observed_minimum']} (l={l_threshold})",
+        )
+    with model_col3:
+        st.metric(
+            "T-closeness",
+            "PASS" if model_result["t"]["passed"] else "FAIL",
+            f"Maximum distance: {model_result['t']['observed_maximum']:.4f} (t={t_threshold:.2f})",
+        )
+
+    st.subheader("Per-group diagnostics")
+    st.dataframe(
+        model_result["groups"],
+        use_container_width=True,
+        hide_index=True,
+    )
+    failed_groups = model_result["groups"][
+        ~(
+            model_result["groups"]["Passes K-Anonymity"]
+            & model_result["groups"]["Passes L-Diversity"]
+            & model_result["groups"]["Passes T-Closeness"]
+        )
+    ]
+    st.caption(
+        f"{len(failed_groups)} of {model_result['group_count']} groups fail "
+        "at least one selected threshold. T-closeness uses total-variation "
+        "distance between each group's sensitive-value distribution and the "
+        "overall distribution."
+    )
+except (TypeError, ValueError) as exc:
+    st.error(f"Privacy model analysis could not run: {exc}")
+
+
+# =========================================================
 # ORIGINAL VS MASKED
 # =========================================================
 
-st.header("7. Original vs Masked Dataset")
+st.header("8. Original vs Masked Dataset")
 
 # Summarize changes across every record, not just the first row.
 comparison_rows = []
@@ -416,6 +494,57 @@ st.dataframe(
 )
 
 
+
+# =========================================================
+# PRIVACY AUDIT REPORT EXPORT
+# =========================================================
+
+st.header("10. Privacy Audit Report")
+st.write(
+    "Create a downloadable, aggregate-only HTML audit report with model "
+    "results, failed-group counts, risk-proxy comparison, and follow-up guidance. "
+    "The report does not include patient-level records or exact group identifiers."
+)
+
+try:
+    from modules.audit_report import build_audit_summary, render_audit_html
+
+    audit_model_result = analyze_privacy_models(
+        masked_df,
+        sensitive_attribute=sensitive_attribute,
+        k=int(k_threshold),
+        l=int(l_threshold),
+        t=float(t_threshold),
+    )
+    audit_masked_risk_result = calculate_risk(masked_df)
+    audit_masked_risk = float(audit_masked_risk_result["Re-identification Risk"].mean())
+    audit_summary = build_audit_summary(
+        technique=masking_option,
+        record_count=int(len(masked_df)),
+        attribute_count=int(masked_df.shape[1]),
+        information_loss=float(information_loss),
+        original_risk=float(average_original_risk),
+        masked_risk=audit_masked_risk,
+        model_result=audit_model_result,
+    )
+    audit_html = render_audit_html(audit_summary)
+    st.download_button(
+        label="Download Privacy Audit Report (HTML)",
+        data=audit_html.encode("utf-8"),
+        file_name="healthcare_privacy_audit.html",
+        mime="text/html",
+        help="Open the downloaded file in a browser; use Print → Save as PDF if a PDF copy is needed.",
+        key="download_privacy_audit_report",
+    )
+    st.caption(
+        f"Report summary: {audit_summary['failed_group_count']} of "
+        f"{audit_summary['group_count']} groups fail at least one model check. "
+        "Review the report limitations before using it to make release decisions."
+    )
+except (TypeError, ValueError, KeyError) as exc:
+    st.error(f"Could not generate the privacy audit report: {exc}")
+
+
 # =========================================================
 # DOWNLOAD
 # =========================================================
@@ -424,7 +553,7 @@ st.dataframe(
 # DOWNLOAD PROTECTED DATASET
 # =========================================================
 
-st.header("8. Download Protected Dataset")
+st.header("9. Download Protected Dataset")
 
 # Create a technique-specific filename
 filename_map = {
