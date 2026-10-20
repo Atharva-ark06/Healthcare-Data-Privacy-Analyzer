@@ -249,6 +249,19 @@ This project is a learning tool, not a certified de-identification system.
 - k-anonymity, l-diversity, and t-closeness do not by themselves certify legal or regulatory compliance.
 - The tool does not replace a privacy impact assessment, security review, or domain-expert judgment.
 
+### Pull request checklist
+
+Before requesting review, confirm as many of the following as apply:
+
+- [ ] The change has a focused scope and a descriptive commit message.
+- [ ] Input validation and error behavior are covered.
+- [ ] Tests cover typical inputs and relevant edge cases.
+- [ ] The dashboard starts with `streamlit run app.py`.
+- [ ] The unit-test command has been run and its result is reported accurately.
+- [ ] Documentation reflects the actual behavior.
+- [ ] No real healthcare data, secrets, or local environment files are included.
+- [ ] Privacy claims are qualified and do not imply a guarantee that the implementation cannot provide.
+
 ## Contributing
 
 Contributions that improve correctness, explainability, accessibility, documentation, and test coverage are welcome.
