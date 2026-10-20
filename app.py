@@ -494,6 +494,57 @@ st.dataframe(
 )
 
 
+
+# =========================================================
+# PRIVACY AUDIT REPORT EXPORT
+# =========================================================
+
+st.header("10. Privacy Audit Report")
+st.write(
+    "Create a downloadable, aggregate-only HTML audit report with model "
+    "results, failed-group counts, risk-proxy comparison, and follow-up guidance. "
+    "The report does not include patient-level records or exact group identifiers."
+)
+
+try:
+    from modules.audit_report import build_audit_summary, render_audit_html
+
+    audit_model_result = analyze_privacy_models(
+        masked_df,
+        sensitive_attribute=sensitive_attribute,
+        k=int(k_threshold),
+        l=int(l_threshold),
+        t=float(t_threshold),
+    )
+    audit_masked_risk_result = calculate_risk(masked_df)
+    audit_masked_risk = float(audit_masked_risk_result["Re-identification Risk"].mean())
+    audit_summary = build_audit_summary(
+        technique=masking_option,
+        record_count=int(len(masked_df)),
+        attribute_count=int(masked_df.shape[1]),
+        information_loss=float(information_loss),
+        original_risk=float(average_original_risk),
+        masked_risk=audit_masked_risk,
+        model_result=audit_model_result,
+    )
+    audit_html = render_audit_html(audit_summary)
+    st.download_button(
+        label="Download Privacy Audit Report (HTML)",
+        data=audit_html.encode("utf-8"),
+        file_name="healthcare_privacy_audit.html",
+        mime="text/html",
+        help="Open the downloaded file in a browser; use Print → Save as PDF if a PDF copy is needed.",
+        key="download_privacy_audit_report",
+    )
+    st.caption(
+        f"Report summary: {audit_summary['failed_group_count']} of "
+        f"{audit_summary['group_count']} groups fail at least one model check. "
+        "Review the report limitations before using it to make release decisions."
+    )
+except (TypeError, ValueError, KeyError) as exc:
+    st.error(f"Could not generate the privacy audit report: {exc}")
+
+
 # =========================================================
 # DOWNLOAD
 # =========================================================
