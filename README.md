@@ -189,6 +189,24 @@ python -m unittest discover -s tests
 
 The test suite should be run locally before submitting or merging changes. This README does not imply that tests have passed in every environment.
 
+## Architecture and module responsibilities
+
+The project separates the dashboard from the analysis logic:
+
+| Component | Responsibility |
+|---|---|
+| `app.py` | Streamlit layout, user controls, analysis presentation, and downloads |
+| `modules/classification.py` | Attribute category classification |
+| `modules/risk_analysis.py` | Group sizes and uniqueness-based risk estimates |
+| `modules/masking.py` | Suppression, generalization, swapping, and combined masking |
+| `modules/utility_analysis.py` | Information-loss calculation |
+| `modules/privacy_models.py` | k-anonymity, l-diversity, and t-closeness diagnostics |
+| `modules/audit_report.py` | Aggregate report summary and HTML rendering |
+| `tests/` | Regression and input-validation tests |
+| `docs/` | Notes about privacy model checks and audit reports |
+
+The separation makes it easier to test analytical functions independently from the Streamlit interface.
+
 ## Project structure
 
 ```text
