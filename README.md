@@ -1,318 +1,233 @@
-# Healthcare Data Privacy Analyzer 
- 
-### Privacy-Preserving Release of Healthcare Microdata
- 
-A Python-based privacy analysis tool designed to identify **re-identification risks** in healthcare datasets and apply privacy-preserving masking techniques while maintaining useful data for analysis.
+# Healthcare Data Privacy Analyzer
 
+**Privacy-preserving release of healthcare microdata**
 
----
- 
-## Dashboard
+A Python and Streamlit project for exploring re-identification risk, applying masking techniques, and comparing privacy-related diagnostics with data utility. Built as an educational demonstration using a small fictional healthcare dataset.
 
-![Healthcare Data Privacy Analyzer Dashboard](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508462/Screenshot_2026-09-27_165228.png)
+![Dashboard screenshot](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508462/Screenshot_2026-09-27_165228.png)
 
-The dashboard provides:
+## Contents
 
-- Dataset overview
-- Attribute classification
-- Re-identification risk analysis
-- Privacy-preserving masking
-- Information loss analysis
-- Privacy improvement
-- Before/after dataset comparison
-- Protected dataset download
-- Light & Dark Theme 
----
+- [Features](#features)
+- [Dashboard screenshots](#dashboard-screenshots)
+- [How it works](#how-it-works)
+- [Privacy techniques](#privacy-techniques)
+- [Privacy model checks](#privacy-model-checks)
+- [Audit report export](#audit-report-export)
+- [Dataset and assumptions](#dataset-and-assumptions)
+- [Technology stack](#technology-stack)
+- [Installation](#installation)
+- [Run tests](#run-tests)
+- [Project structure](#project-structure)
+- [Limitations](#limitations)
+- [Contributing](#contributing)
+- [Author](#author)
 
-## Key Features
+## Features
 
-- **Attribute Classification**
-  - Direct Identifiers
-  - Quasi-Identifiers
-  - Sensitive Attributes
+- **Dataset overview:** inspect record and attribute counts.
+- **Attribute classification:** distinguish direct identifiers, quasi-identifiers, and sensitive attributes.
+- **Re-identification risk proxy:** estimate uniqueness-based risk using quasi-identifier combinations.
+- **Masking:** try suppression, age generalization, data swapping, or combined non-perturbative masking.
+- **Utility analysis:** estimate information loss and compare original and masked values.
+- **Formal model diagnostics:** evaluate k-anonymity, distinct-value l-diversity, and t-closeness thresholds.
+- **Exports:** download the selected masked dataset as CSV and export aggregate audit findings as HTML.
+- **Interactive dashboard:** explore results in a Streamlit interface.
 
-- **Re-identification Risk Analysis**
-  - Calculates risk using quasi-identifier combinations
-  - Determines group sizes
-  - Displays average re-identification risk
+## Dashboard screenshots
 
-- **Privacy-Preserving Masking**
-  - Suppression
-  - Generalization
-  - Data Swapping
-  - Combined Non-Perturbative Masking
+### Masking comparison
 
-- **Privacy & Utility Analysis**
-  - Information loss calculation
-  - Privacy improvement analysis
-  - Original vs masked dataset comparison
+![Before and after masking](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508485/Screenshot_2026-09-27_165251.png)
 
-- **Dataset Export**
-  - Download the protected dataset based on the selected technique
+### Protected dataset export
 
----
+![Protected dataset download](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508536/Screenshot_2026-09-27_165844.png)
 
-## Privacy-Preserving Techniques
+### System flow and architecture
+
+![System flow and architecture](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508983/systemflow_and_architecture.png)
+
+## How it works
+
+1. Load the healthcare CSV dataset.
+2. Classify attributes and calculate a uniqueness-based risk proxy.
+3. Select and apply a masking technique.
+4. Compare the original and transformed datasets.
+5. Calculate an information-loss estimate and evaluate privacy model thresholds.
+6. Download the transformed CSV or aggregate audit report.
+
+## Privacy techniques
 
 | Technique | Description |
 |---|---|
-| **Suppression** | Hides sensitive parts of selected data |
-| **Generalization** | Replaces exact values with broader ranges |
-| **Data Swapping** | Exchanges selected attribute values between records |
-| **Apply All Non-Perturbative** | Combines suppression and generalization |
+| **Suppression** | Masks selected PIN-code digits. |
+| **Generalization** | Converts exact ages into broader age ranges. |
+| **Data swapping** | Exchanges selected age values between records. |
+| **Apply all non-perturbative** | Combines suppression and age generalization. |
 
----
+The selected technique determines the output dataset available for download. Always inspect the resulting data before using it in any downstream workflow.
 
-## Masking Demonstration
+## Privacy model checks
 
-### Suppression
+The dashboard includes configurable diagnostic checks for:
 
-The system allows users to compare the dataset **before and after masking**.
+- **k-anonymity:** each quasi-identifier group must contain at least *k* records.
+- **l-diversity:** each group must contain at least *l* distinct sensitive-attribute values.
+- **t-closeness:** each group's sensitive-value distribution is compared with the overall distribution using total-variation distance.
 
-![Before and After Masking](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508485/Screenshot_2026-09-27_165251.png)
+The default quasi-identifiers are Age, Gender, PIN Code, and Department. Disease or Treatment can be selected as the sensitive attribute, depending on the columns available.
 
-In the suppression example, the exact PIN codes are masked while preserving the remaining dataset information.
+These checks are educational diagnostics, not formal proof of anonymity or a guarantee against re-identification. Results depend on the selected attributes, thresholds, data, and threat model.
 
----
+## Audit report export
 
-## Download Protected Dataset
+The dashboard can generate a self-contained HTML privacy audit report containing:
 
-The application allows users to download the dataset after applying the selected privacy technique.
+- selected masking technique and dataset dimensions;
+- information-loss estimate and original/masked risk proxy;
+- pass/fail results for the configured privacy models;
+- aggregate counts of groups failing each check;
+- recommendations for further review and a limitations notice.
 
-![Download Protected Dataset](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508536/Screenshot_2026-09-27_165844.png)
+The report is designed to omit patient-level records and exact quasi-identifier values. Download the HTML report and open it in a browser. To make a PDF copy, use the browser's **Print → Save as PDF** option.
 
-Each selected technique generates its corresponding protected CSV dataset.
+## Dataset and assumptions
 
----
-
-## System Flow & Architecture
-
-![System Flow and Architecture](https://res.cloudinary.com/wpop4xyo/image/upload/v1790508983/systemflow_and_architecture.png)
-
-### System Flow
-
-    Dataset Input
-         ↓
-    Attribute Classification
-         ↓
-    Re-identification Risk Analysis
-         ↓
-    Privacy-Preserving Masking
-         ↓
-    Utility & Privacy Analysis
-         ↓
-    Protected Dataset Export
-
----
-
-## System Architecture
-
-         ┌──────────────────────┐
-         │     CSV Dataset      │
-         │ healthcare_dataset   │
-         └──────────┬───────────┘
-                    │
-                    ↓      
-    ┌─────────────────────────────────────────┐
-    │          Python Processing Layer        │
-    │                                         │
-    │    classification.py                    │
-    │    risk_analysis.py                     │
-    │    masking.py                           │
-    │    utility_analysis.py                  │
-    └──────────────────┬──────────────────────┘
-                       ↓
-    ┌─────────────────────────────────────────┐
-    │          Streamlit Application          │
-    │                  app.py                 │
-    └──────────────────┬──────────────────────┘
-                       ↕
-    ┌─────────────────────────────────────────┐
-    │             Web Dashboard               │
-    │    Analysis • Masking • Comparison      │
-    │    Information Loss • Download          │
-    └─────────────────────────────────────────┘
-
----
-
-## Project Structure
-
-    Healthcare-Data-Privacy-Analyzer/
-    │
-    ├── app.py
-    ├── requirements.txt
-    │
-    ├── data/
-    │   └── healthcare_dataset.csv
-    │
-    └── modules/
-        ├── __init__.py
-        ├── classification.py
-        ├── risk_analysis.py
-        ├── masking.py
-        └── utility_analysis.py
-
----
-
-## Dataset
-
-The project uses a small fictional healthcare dataset containing:
-
-- Patient ID
-- Age
-- Gender
-- PIN Code
-- Department
-- Disease
-- Treatment
-
-### Attribute Classification
+The included sample is a small fictional dataset with the following attributes:
 
 | Category | Attributes |
 |---|---|
-| **Direct Identifier** | Patient ID |
-| **Quasi-Identifier** | Age, Gender, PIN Code, Department |
-| **Sensitive Attribute** | Disease, Treatment |
+| Direct identifier | Patient ID |
+| Quasi-identifiers | Age, Gender, PIN Code, Department |
+| Sensitive attributes | Disease, Treatment |
 
-No real patient information is used.
+No real patient information should be added to a public repository. Before using any real or sensitive data, review authorization, consent, access controls, and applicable institutional requirements.
 
----
+## Risk and information-loss calculations
 
-## Re-identification Risk
+The risk module uses a simplified uniqueness-based proxy:
 
-The project calculates risk using:
+`risk (%) = 100 / size of the matching quasi-identifier group`
 
-    Risk = 1 / Number of records
-           sharing the same
-           quasi-identifier combination
+The information-loss estimate compares original and masked cells:
 
-The system calculates individual record risk as well as the average dataset risk before and after masking.
+`information loss (%) = changed cells / total cells × 100`
 
----
+These metrics are intended for learning and comparison. They are not interchangeable with a formal privacy guarantee or a complete measure of analytical utility.
 
-## Information Loss
+## Technology stack
 
-Information loss is calculated by comparing the original dataset with the masked dataset and determining the percentage of changed cells.
-
-    Information Loss =
-    Changed Cells / Total Cells × 100
-
-This demonstrates the trade-off between **privacy protection and data utility**.
-
----
-
-## Technology Stack
-
-| Technology | Purpose |
+| Technology | Role |
 |---|---|
-| **Python** | Core programming |
-| **Pandas** | Data processing and analysis |
-| **Streamlit** | Interactive web dashboard |
-| **CSV** | Dataset storage |
-| **Matplotlib** | Data visualization |
-| **Git & GitHub** | Version control |
+| Python | Application logic |
+| Pandas | Data manipulation and analysis |
+| Streamlit | Interactive dashboard |
+| CSV | Sample dataset and export format |
+| unittest | Automated unit tests |
+| Git and GitHub | Version control and collaboration |
 
----
+## Installation
 
-## Installation & Setup
+### 1. Clone the repository
 
-### 1. Clone the Repository
-
-    git clone https://github.com/Atharva-ark06/Healthcare-Data-Privacy-Analyzer.git
-   ```
-    cd Healthcare-Data-Privacy-Analyzer
+```bash
+git clone https://github.com/Atharva-ark06/Healthcare-Data-Privacy-Analyzer.git
+cd Healthcare-Data-Privacy-Analyzer
 ```
-### 2. Create Virtual Environment
 
-    python -m venv venv
+### 2. Create and activate a virtual environment
 
-### 3. Activate Environment
+**Windows PowerShell**
 
-Windows PowerShell:
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
 
-    .\venv\Scripts\Activate.ps1
+**macOS / Linux**
 
-### 4. Install Dependencies
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-    pip install -r requirements.txt
+### 3. Install dependencies
 
-### 5. Run the Application
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-    streamlit run app.py
+### 4. Start the dashboard
 
-The application will open in your browser.
+```bash
+streamlit run app.py
+```
 
----
+Streamlit prints a local URL in the terminal; open it in your browser.
 
-## Workflow
+## Run tests
 
-    Healthcare Dataset
-            ↓
-    Attribute Classification
-            ↓
-    Risk Calculation
-            ↓
-    Select Masking Technique
-            ↓
-    Apply Privacy Protection
-            ↓
-    Calculate Information Loss
-            ↓
-    Compare Privacy & Utility
-            ↓
-    Download Protected Dataset
+Run the unit tests from the repository root:
 
----
+```bash
+python -m unittest discover -s tests
+```
 
-## Project Objectives
+The test suite should be run locally before submitting or merging changes. This README does not imply that tests have passed in every environment.
 
-1. **To design** a system for identifying re-identification risks in healthcare microdata.
+## Project structure
 
-2. **To develop** privacy-preserving masking techniques including suppression, generalization, and data swapping.
+```text
+Healthcare-Data-Privacy-Analyzer/
+├── app.py
+├── requirements.txt
+├── data/
+│   └── healthcare_dataset.csv
+├── modules/
+│   ├── classification.py
+│   ├── risk_analysis.py
+│   ├── masking.py
+│   ├── utility_analysis.py
+│   └── privacy_models.py
+├── tests/
+│   ├── test_privacy_modules.py
+│   ├── test_privacy_models.py
+│   └── test_audit_report.py
+└── docs/
+    ├── privacy-model-checks.md
+    └── privacy-audit-report.md
+```
 
-3. **To implement** privacy and utility analysis through information-loss and risk evaluation.
+## Limitations
 
----
+- The included dataset is small and fictional; results may not generalize to real datasets.
+- Uniqueness-based risk is a simplified proxy and does not model every attacker or external data source.
+- Masking can reduce data utility, and changing values does not automatically make a dataset safe to publish.
+- k-anonymity, l-diversity, and t-closeness do not by themselves certify legal or regulatory compliance.
+- The tool does not replace a privacy impact assessment, security review, or domain-expert judgment.
 
-## Applications
+## Contributing
 
-- Healthcare analytics
-- Academic research
-- Data publishing
-- Privacy-preserving data sharing
-- Educational demonstrations
-- Microdata risk assessment
+Contributions that improve correctness, explainability, accessibility, documentation, and test coverage are welcome.
 
----
+1. Fork the repository and create a focused feature branch.
+2. Make a small, clearly scoped change.
+3. Add or update tests for changed behavior.
+4. Run `python -m unittest discover -s tests` and try the Streamlit dashboard.
+5. Open a pull request describing the change, validation performed, and known limitations.
 
-## Limitations & Future Scope
-
-- Larger real-world style datasets
-- **k-anonymity** validation
-- **l-diversity**
-- **t-closeness**
-- Advanced privacy metrics
-- Automated privacy-utility optimization
-- Additional perturbation techniques
-- Database integration
-- Role-based access control
-
----
+Please do not commit real patient data, credentials, access tokens, or other sensitive information.
 
 ## Author
 
-**Atharva Kulkarni**
+**Atharva Kulkarni**  
+B.Tech, Computer Science & Engineering
 
-B.Tech Computer Science & Engineering  
-
-
-**GitHub:**  
-```
-https://github.com/Atharva-ark06
-```
----
+- GitHub: [Atharva-ark06](https://github.com/Atharva-ark06)
+- Repository: [Healthcare Data Privacy Analyzer](https://github.com/Atharva-ark06/Healthcare-Data-Privacy-Analyzer)
 
 ## License
 
-This project is developed for academic and educational purposes.
-```
+This project is developed for academic and educational purposes. Check the repository for an explicit license before reusing or redistributing the code.
